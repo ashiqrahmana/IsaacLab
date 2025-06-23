@@ -24,37 +24,15 @@ from isaaclab.assets.articulation import ArticulationCfg
 from isaaclab.utils.assets import ISAACLAB_NUCLEUS_DIR
 
 ##
-# Configuration - Actuators.
-##
-
-GO1_ACTUATOR_CFG = ActuatorNetMLPCfg(
-    joint_names_expr=[".*_hip_joint", ".*_thigh_joint", ".*_calf_joint"],
-    network_file=f"{ISAACLAB_NUCLEUS_DIR}/ActuatorNets/Unitree/unitree_go1.pt",
-    pos_scale=-1.0,
-    vel_scale=1.0,
-    torque_scale=1.0,
-    input_order="pos_vel",
-    input_idx=[0, 1, 2],
-    effort_limit=23.7,  # taken from spec sheet
-    velocity_limit=30.0,  # taken from spec sheet
-    saturation_effort=23.7,  # same as effort limit
-)
-"""Configuration of Go1 actuators using MLP model.
-
-Actuator specifications: https://shop.unitree.com/products/go1-motor
-
-This model is taken from: https://github.com/Improbable-AI/walk-these-ways
-"""
-
-
-##
 # Configuration
 ##
 
 BITTLE_CFG = ArticulationCfg(
     spawn=sim_utils.UsdFileCfg(
         usd_path="/home/ashiq/code/storage/bittle_with_og_feet.usd",
+        # usd_path="/home/ashiq/projects/bittle/bittle.usd",
         activate_contact_sensors=True,
+        scale=[0.1,0.1,0.1],
         rigid_props=sim_utils.RigidBodyPropertiesCfg(
             disable_gravity=False,
             retain_accelerations=False,
@@ -69,7 +47,7 @@ BITTLE_CFG = ArticulationCfg(
         ),
     ),
     init_state=ArticulationCfg.InitialStateCfg(
-        pos=(0.0, 0.0, 0.4),
+        pos=(0.0, 0.0, 0.1),
         joint_pos={".*": 0.0},
         joint_vel={".*": 0.0},
     ),
@@ -77,9 +55,9 @@ BITTLE_CFG = ArticulationCfg(
     actuators={
         "base_legs": DCMotorCfg(
             joint_names_expr=[".*_shoulder_joint", ".*_knee_joint"],
-            effort_limit=23.5,
-            saturation_effort=23.5,
-            velocity_limit=30.0,
+            effort_limit=1.5,
+            saturation_effort=1.5,
+            velocity_limit=1.5708,
             stiffness=25.0,
             damping=0.5,
             friction=0.0,

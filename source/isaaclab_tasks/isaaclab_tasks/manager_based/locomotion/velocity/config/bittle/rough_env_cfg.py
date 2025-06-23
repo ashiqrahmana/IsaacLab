@@ -20,23 +20,26 @@ class BittleRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
         super().__post_init__()
 
         self.scene.robot = BITTLE_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
-        self.scene.height_scanner.prim_path = "{ENV_REGEX_NS}/Robot/base"
+        self.scene.height_scanner.prim_path = "{ENV_REGEX_NS}/Robot/base_frame_link"
         # scale down the terrains because the robot is small
         self.scene.terrain.terrain_generator.sub_terrains["boxes"].grid_height_range = (0.025, 0.1)
         self.scene.terrain.terrain_generator.sub_terrains["random_rough"].noise_range = (0.01, 0.06)
         self.scene.terrain.terrain_generator.sub_terrains["random_rough"].noise_step = 0.01
-
+        self.scene.replicate_physics = False
         # reduce action scale
         self.actions.joint_pos.scale = 0.25
 
         # event
-        self.events.push_robot = None
-        self.events.add_base_mass.params["mass_distribution_params"] = (-1.0, 3.0)
-        self.events.add_base_mass.params["asset_cfg"].body_names = "base"
-        self.events.base_external_force_torque.params["asset_cfg"].body_names = "base"
+        self.events.add_base_mass.params["mass_distribution_params"] = (0.0, 0.3)
+        self.events.add_base_mass.params["asset_cfg"].body_names = "base_frame_link"
+        self.events.base_com.params["asset_cfg"].body_names = "base_frame_link"
+        self.events.base_com.params["com_range"]["x"] = (-0.005, 0.005)
+        self.events.base_com.params["com_range"]["y"] = (-0.005, 0.005)
+        self.events.base_com.params["com_range"]["z"] = (-0.001, 0.001)
+        self.events.base_external_force_torque.params["asset_cfg"].body_names = "base_frame_link"
         self.events.reset_robot_joints.params["position_range"] = (1.0, 1.0)
         self.events.reset_base.params = {
-            "pose_range": {"x": (-0.5, 0.5), "y": (-0.5, 0.5), "yaw": (-3.14, 3.14)},
+            "pose_range": {"x": (-0.05, 0.05), "y": (-0.05, 0.05), "yaw": (-3.14, 3.14)},
             "velocity_range": {
                 "x": (0.0, 0.0),
                 "y": (0.0, 0.0),
@@ -46,9 +49,10 @@ class BittleRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
                 "yaw": (0.0, 0.0),
             },
         }
+        self.events.push_robot.params = {"velocity_range": {"x": (-0.05, 0.05), "y": (-0.05, 0.05)}}
 
         # rewards
-        self.rewards.feet_air_time.params["sensor_cfg"].body_names = ".*_foot"
+        self.rewards.feet_air_time.params["sensor_cfg"].body_names = ".*_foot_.*"
         self.rewards.feet_air_time.weight = 0.01
         self.rewards.undesired_contacts = None
         self.rewards.dof_torques_l2.weight = -0.0002
@@ -57,7 +61,7 @@ class BittleRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
         self.rewards.dof_acc_l2.weight = -2.5e-7
 
         # terminations
-        self.terminations.base_contact.params["sensor_cfg"].body_names = "base"
+        self.terminations.base_contact.params["sensor_cfg"].body_names = "base_frame_link"
 
 
 @configclass

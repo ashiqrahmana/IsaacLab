@@ -41,3 +41,4 @@ class BittleFlatEnvCfg_PLAY(BittleFlatEnvCfg):
         # remove random pushing event
         self.events.base_external_force_torque = None
         self.events.push_robot = None
+        self.terminations.base_contact = None
